@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model binh_luan {
+  binh_luan_id   Int        @id @default(autoincrement())
+  nguoi_dung_id  Int
+  hinh_id        Int
+  ngay_binh_luan DateTime   @db.Date
+  noi_dung       String     @db.VarChar(255)
+  nguoi_dung     nguoi_dung @relation(fields: [nguoi_dung_id], references: [nguoi_dung_id], onDelete: Cascade, onUpdate: NoAction, map: "binh_luan_ibfk_1")
+  hinh_anh       hinh_anh   @relation(fields: [hinh_id], references: [hinh_id], onDelete: Cascade, onUpdate: NoAction, map: "binh_luan_ibfk_2")
+
+  @@index([hinh_id], map: "hinh_id")
+  @@index([nguoi_dung_id], map: "nguoi_dung_id")
+}
+
+model hinh_anh {
+  hinh_id       Int         @id @default(autoincrement())
+  ten_hinh      String      @db.VarChar(255)
+  duong_dan     String      @db.VarChar(255)
+  mo_ta         String?     @db.VarChar(255)
+  nguoi_dung_id Int
+  binh_luan     binh_luan[]
+  nguoi_dung    nguoi_dung  @relation(fields: [nguoi_dung_id], references: [nguoi_dung_id], onDelete: Cascade, onUpdate: NoAction, map: "hinh_anh_ibfk_1")
+  luu_anh       luu_anh[]
+
+  @@index([nguoi_dung_id], map: "nguoi_dung_id")
+}
+
+model luu_anh {
+  nguoi_dung_id Int
+  hinh_id       Int
+  ngay_luu      DateTime   @db.Date
+  nguoi_dung    nguoi_dung @relation(fields: [nguoi_dung_id], references: [nguoi_dung_id], onDelete: Cascade, onUpdate: NoAction, map: "luu_anh_ibfk_1")
+  hinh_anh      hinh_anh   @relation(fields: [hinh_id], references: [hinh_id], onDelete: Cascade, onUpdate: NoAction, map: "luu_anh_ibfk_2")
+
+  @@id([nguoi_dung_id, hinh_id])
+  @@index([hinh_id], map: "hinh_id")
+}
+
+model nguoi_dung {
+  nguoi_dung_id Int         @id @default(autoincrement())
+  email         String      @unique(map: "email") @db.VarChar(255)
+  mat_khau      String      @db.VarChar(255)
+  ho_ten        String      @db.VarChar(255)
+  tuoi          Int
+  anh_dai_dien  String?     @db.VarChar(255)
+  binh_luan     binh_luan[]
+  hinh_anh      hinh_anh[]
+  luu_anh       luu_anh[]
+}
